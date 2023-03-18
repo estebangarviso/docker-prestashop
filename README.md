@@ -15,7 +15,7 @@ Edit the file `env/.env.${ENVIRONMENT}` and set the environment variables.
 
 This is the structure of the cloned project:
 
-````bash
+```bash
 ├── docker-images
 │   └── mysql
 │   └── nginx
@@ -27,6 +27,7 @@ This is the structure of the cloned project:
 ├── docs
 ├── README.md
 └── docker-compose.yml
+```
 
 ## How to use
 
@@ -36,7 +37,7 @@ This is the structure of the cloned project:
 
 ```bash
 COMPOSE_PROFILES=db,web docker compose --env-file env/.env.${ENVIRONMENT} --project-name ${PROJECT_NAME} up -d
-````
+```
 
 #### Stop
 
