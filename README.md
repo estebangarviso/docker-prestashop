@@ -6,7 +6,6 @@ This is a project to deploy a Prestashop CRM with Docker.
 
 - [Install Docker](https://docs.docker.com/get-docker/)
 - [Install Docker Compose](https://docs.docker.com/compose/install/)
-- [Install Make](https://www.gnu.org/software/make/)
 
 ## Services
 
@@ -43,28 +42,41 @@ First rename `.env.example` to `.env` and edit the variables on local environmen
 cp .env.example .env
 ```
 
-Then use the following commands according to your needs.
+Then use the following commands according to your needs. All commands are in the `Makefile` file.
 
-#### Build
-
-```bash
-make build
-```
-
-#### Stop
+Examples:
 
 ```bash
-make stop
-```
-
-#### Restart
-
-```bash
-make restart
-```
-
+#### Build and start
+COMPOSE_PROFILES=db,proxy docker-compose --project-name ps-ecommerce up --build -d --remove-orphans
+#### Will remove all containers
+COMPOSE_PROFILES=db,proxy docker-compose --project-name ps-ecommerce down
+#### Restart all containers
+COMPOSE_PROFILES=db,proxy docker-compose --project-name ps-ecommerce restart
 #### View logs
-
-```bash
-make logs
+COMPOSE_PROFILES=db,proxy docker-compose --project-name ps-ecommerce logs -f
+#### View docker containers
+COMPOSE_PROFILES=db,proxy docker ps -a --format "table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}\t{{.Image}}"
+#### Inspect docker container
+COMPOSE_PROFILES=db,proxy docker inspect ps-ecommerce_app_1
+#### Execute command on container
+COMPOSE_PROFILES=db,proxy docker-compose --project-name ps-ecommerce exec app bash
+#### Delete image
+docker rmi ps-ecommerce_app
+#### Delete all images
+docker rmi $(docker images -a -q)
+#### Delete container
+docker rm ps-ecommerce_app_1
+#### Delete all containers
+docker rm $(docker ps -a -q)
+#### Delete volume
+docker volume rm ps-ecommerce_app
+#### Delete all volumes
+docker volume rm $(docker volume ls -q)
+#### Delete network
+docker network rm ps-ecommerce_front-tier
+#### Delete all networks
+docker network rm $(docker network ls -q)
+#### Delete all
+docker system prune -a
 ```
