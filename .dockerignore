@@ -7,15 +7,15 @@ npm-debug.log
 **/.DS_Store
 
 # docker files
-Dockerfile
-**/Dockerfile
-docker-compose.yml
-.dockerignore
+# Dockerfile
+# **/Dockerfile
+# docker-compose.yml
+# .dockerignore
 
 # config and documentation
 .vscode
 CHANGELOG.md
-README.md
+# README.md
 **/README.md
 LICENSE.md
 
