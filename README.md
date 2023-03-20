@@ -1,4 +1,4 @@
-# Prestashop CRM with Docker
+# Prestashop Ecommerce
 
 This is a project to deploy a Prestashop CRM with Docker.
 
@@ -6,51 +6,65 @@ This is a project to deploy a Prestashop CRM with Docker.
 
 - [Install Docker](https://docs.docker.com/get-docker/)
 - [Install Docker Compose](https://docs.docker.com/compose/install/)
+- [Install Make](https://www.gnu.org/software/make/)
 
-## Configuration
+## Services
 
-Edit the file `env/.env.${ENVIRONMENT}` and set the environment variables.
+- [Oracle MySQL v8.0.32](https://www.mysql.com/)
+- [FastCGI Process Manager PHP v8.1](https://www.php.net/manual/en/install.fpm.php)
+- [Traefik Proxy v2.9](https://traefik.io/)
 
 ## Data Structure
 
 This is the structure of the cloned project:
 
 ```bash
-├── docker-images
+├── .github
+│   └── workflows
+├── containers
 │   └── mysql
-│   └── nginx
+│   └── nginx # deprecated. Use traefik instead
 │   └── php
-├── env
-│   └── .env.dev
-│   └── .env.qa
-│   └── .env.prod
-├── docs
-├── README.md
-└── docker-compose.yml
+│   └── traefik
+├── .dockerignore
+├── .env.example
+├── .gitignore
+├── docker-compose.yml
+├── LICENSE.md
+├── Makefile
+└── README.md
 ```
 
 ## How to use
 
-### Docker
+First rename `.env.example` to `.env` and edit the variables on local environment or pull repo and add secrets to your environment on Github.
+
+```bash
+cp .env.example .env
+```
+
+Then use the following commands according to your needs.
 
 #### Build
 
 ```bash
-COMPOSE_PROFILES=db,web docker compose --env-file env/.env.${ENVIRONMENT} --project-name ${PROJECT_NAME} up -d
+make build
 ```
 
 #### Stop
 
 ```bash
-COMPOSE_PROFILES=db,web docker-compose --env-file env/.env.${ENVIRONMENT} --project-name ${PROJECT_NAME} down
+make stop
 ```
 
-#### Remove image
+#### Restart
 
 ```bash
-docker rmi ${IMAGE_NAME}
+make restart
 ```
 
-## Find docker subnet in docker desktop
+#### View logs
 
-![Docker subnet](./docs/docker-subnet.png)
+```bash
+make logs
+```
