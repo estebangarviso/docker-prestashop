@@ -7,15 +7,16 @@ npm-debug.log
 **/.DS_Store
 
 # docker files
-.dockerignore
+Dockerfile
 **/Dockerfile
 docker-compose.yml
+.dockerignore
 
 # config and documentation
 .vscode
-docs
 CHANGELOG.md
 README.md
+**/README.md
 LICENSE.md
 
 # pipeline and cicd
@@ -32,3 +33,5 @@ junit.xml
 .eslintcache
 .gitignore
 .prettierrc.json
+.env
+.env.example
