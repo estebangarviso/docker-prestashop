@@ -1,0 +1,60 @@
+name: Create and publish a Docker image
+
+on:
+  push:
+    branches: [main]
+jobs:
+  build-and-push-image:
+    env:
+      # Database
+      DB_SERVER: ${{ secrets.DB_SERVER }}
+      DB_PORT: ${{ secrets.DB_PORT }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASSWD: ${{ secrets.DB_PASSWD }}
+
+      # SuperAdmin
+      ADMIN_MAIL: ${{ secrets.ADMIN_MAIL }}
+      ADMIN_PASSWD: ${{ secrets.ADMIN_PASSWD }}
+      ADMIN_FIRSTNAME: ${{ secrets.ADMIN_FIRSTNAME }}
+      ADMIN_LASTNAME: ${{ secrets.ADMIN_LASTNAME }}
+
+      # PrestaShop
+      PS_DOMAIN: ${{ secrets.PS_DOMAIN }}
+      PS_DEV_MODE: ${{ secrets.PS_DEV_MODE }}
+      PS_VERSION: ${{ secrets.PS_VERSION }}
+      PS_ENABLE_SSL: ${{ secrets.PS_ENABLE_SSL }}
+      PS_LANGUAGE: ${{ secrets.PS_LANGUAGE }}
+      PS_COUNTRY: ${{ secrets.PS_COUNTRY }}
+      PS_TIMEZONE: ${{ secrets.PS_TIMEZONE }}
+      PS_SHOP_NAME: ${{ secrets.PS_SHOP_NAME }}
+      PS_FOLDER_ADMIN: ${{ secrets.PS_FOLDER_ADMIN }}
+    name: Build and push Docker image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ github.repository }}
+          version: latest
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

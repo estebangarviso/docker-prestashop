@@ -1,7 +1,4 @@
-# Global variables
-ARG MYSQL_VERSION
-
-FROM mysql:${MYSQL_VERSION}
+FROM mysql:8.0.32
 
 LABEL maintainer="Esteban Garviso <e.garvisovenegas@gmail.com>"
 

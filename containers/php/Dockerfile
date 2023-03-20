@@ -20,7 +20,8 @@ ARG ADMIN_MAIL \
 	PS_TIMEZONE \
 	PS_HANDLE_DYNAMIC_DOMAIN \
 	PS_FOLDER_ADMIN \
-	PS_BASE_URI
+	PS_BASE_URI \
+	PS_FOLDER_INSTALL
 
 ENV ADMIN_MAIL=$ADMIN_MAIL \
 	ADMIN_PASSWD=$ADMIN_PASSWD \
@@ -47,7 +48,7 @@ ENV ADMIN_MAIL=$ADMIN_MAIL \
 	PS_HANDLE_DYNAMIC_DOMAIN=$PS_HANDLE_DYNAMIC_DOMAIN \
 	PS_FOLDER_ADMIN=$PS_FOLDER_ADMIN \
 	PS_BASE_URI=$PS_BASE_URI \
-	PS_FOLDER_INSTALL=install
+	PS_FOLDER_INSTALL=$PS_FOLDER_INSTALL
 
 # Install dependencies
 RUN apt-get update \
@@ -108,9 +109,9 @@ RUN mkdir -p /tmp/data-ps \
 	&& rm /tmp/prestashop.zip
 
 # Healthcheck
-COPY config/docker-healthcheck.sh /usr/local/bin/docker-healthcheck
-RUN chmod +x /usr/local/bin/docker-healthcheck
-HEALTHCHECK --interval=10s --timeout=3s --retries=3 CMD ["docker-healthcheck"]
+COPY config/docker_healthcheck.sh /usr/local/bin/docker_healthcheck
+RUN chmod +x /usr/local/bin/docker_healthcheck
+HEALTHCHECK --interval=10s --timeout=3s --retries=3 CMD ["docker_healthcheck"]
 
 # RUN
 CMD ["/tmp/docker_run.sh"]
