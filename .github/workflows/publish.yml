@@ -5,30 +5,6 @@ on:
     branches: [main]
 jobs:
   build-and-push-image:
-    env:
-      # Database
-      DB_SERVER: ${{ secrets.DB_SERVER }}
-      DB_PORT: ${{ secrets.DB_PORT }}
-      DB_NAME: ${{ secrets.DB_NAME }}
-      DB_USER: ${{ secrets.DB_USER }}
-      DB_PASSWD: ${{ secrets.DB_PASSWD }}
-
-      # SuperAdmin
-      ADMIN_MAIL: ${{ secrets.ADMIN_MAIL }}
-      ADMIN_PASSWD: ${{ secrets.ADMIN_PASSWD }}
-      ADMIN_FIRSTNAME: ${{ secrets.ADMIN_FIRSTNAME }}
-      ADMIN_LASTNAME: ${{ secrets.ADMIN_LASTNAME }}
-
-      # PrestaShop
-      PS_DOMAIN: ${{ secrets.PS_DOMAIN }}
-      PS_DEV_MODE: ${{ secrets.PS_DEV_MODE }}
-      PS_VERSION: ${{ secrets.PS_VERSION }}
-      PS_ENABLE_SSL: ${{ secrets.PS_ENABLE_SSL }}
-      PS_LANGUAGE: ${{ secrets.PS_LANGUAGE }}
-      PS_COUNTRY: ${{ secrets.PS_COUNTRY }}
-      PS_TIMEZONE: ${{ secrets.PS_TIMEZONE }}
-      PS_SHOP_NAME: ${{ secrets.PS_SHOP_NAME }}
-      PS_FOLDER_ADMIN: ${{ secrets.PS_FOLDER_ADMIN }}
     name: Build and push Docker image
     runs-on: ubuntu-latest
     permissions:

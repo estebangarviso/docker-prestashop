@@ -29,7 +29,7 @@ services:
       context: ./containers/php
       args:
         PS_VERSION: ${PS_VERSION}
-        PS_DOMAIN: ${PS_DOMAIN} # add machine domain to env (e.g. myshop.com) or let it like this to use container IP
+        PS_DOMAIN: ${PS_DOMAIN}
         DB_SERVER: ${DB_SERVER:-db}
         DB_PORT: ${DB_PORT:-3306}
         DB_NAME: ${DB_NAME}

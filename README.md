@@ -36,15 +36,7 @@ This is the structure of the cloned project:
 
 ## How to use
 
-First rename `.env.example` to `.env` and edit the variables on local environment or pull repo and add secrets to your environment on Github.
-
-```bash
-cp .env.example .env
-```
-
-Then use the following commands according to your needs. All commands are in the `Makefile` file.
-
-Examples:
+Edit `.env` on local environment or use secrets on production environment.
 
 ```bash
 #### Build and start
