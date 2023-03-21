@@ -64,7 +64,8 @@ RUN apt-get update \
 	default-mysql-client \
 	wget \
 	unzip \
-	libonig-dev
+	libonig-dev \
+	libfcgi0ldbl
 
 # Install PHP extensions
 RUN rm -rf /var/lib/apt/lists/*
@@ -109,9 +110,9 @@ RUN mkdir -p /tmp/data-ps \
 	&& rm /tmp/prestashop.zip
 
 # Healthcheck
-COPY config/docker_healthcheck.sh /usr/local/bin/docker_healthcheck
-RUN chmod +x /usr/local/bin/docker_healthcheck
-HEALTHCHECK --interval=10s --timeout=3s --retries=3 CMD ["docker_healthcheck"]
+COPY config/php-fpm-healthcheck.sh /usr/local/bin/php-fpm-healthcheck
+RUN chmod +x /usr/local/bin/php-fpm-healthcheck
+HEALTHCHECK --interval=10s --timeout=3s --retries=3 CMD ["php-fpm-healthcheck"]
 
 # RUN
 CMD ["/tmp/docker_run.sh"]
