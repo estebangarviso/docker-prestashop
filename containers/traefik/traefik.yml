@@ -28,12 +28,11 @@ entryPoints:
     address: :80
     # (Optional) Redirect to HTTPS
     # ---
-    http:
-      redirections:
-        entryPoint:
-          to: websecure
-          scheme: https
-
+    # http:
+    #   redirections:
+    #     entryPoint:
+    #       to: websecure
+    #       scheme: https
   websecure:
     address: :443
 
@@ -56,18 +55,18 @@ certificatesResolvers:
         entryPoint: web
 
 # (Optional) Overwrite Default Certificates
-tls:
-  stores:
-    default:
-      defaultCertificate:
-        certFile: /etc/traefik/certs/cert.pem
-        keyFile: /etc/traefik/certs/cert-key.pem
-  # (Optional) Disable TLS version 1.0 and 1.1
-  options:
-    default:
-      minVersion: VersionTLS12
-    mintls13:
-      minVersion: VersionTLS13
+# tls:
+# stores:
+#   default:
+#     defaultCertificate:
+#       certFile: /etc/traefik/certs/local-cert.pem
+#       keyFile: /etc/traefik/certs/local-key.pem
+# (Optional) Disable TLS version 1.0 and 1.1
+# options:
+#   default:
+#     minVersion: VersionTLS12
+#   mintls13:
+#     minVersion: VersionTLS13
 
 providers:
   docker:
