@@ -1,105 +1,150 @@
+# https://docs.docker.com/compose/compose-file/compose-file-v3/
 version: '3.9'
 services:
-  db:
+  mysql:
     build:
-      context: ./containers/mysql
+      context: ./.docker/mysql
     tty: true
     restart: always
     ports:
       - 3306:3306
     profiles:
-      - db
+      - database
     networks:
-      - back-tier
+      - private_net
     environment:
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWD}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWD}
     volumes:
-      - db:/var/lib/mysql
-    healthcheck:
-      test: ['CMD-SHELL', 'mysqladmin', 'ping', '-h', 'localhost', '-u', '${DB_USER}', '-p${DB_PASSWD}']
-      timeout: 20s
-      retries: 10
+      - mysql:/var/lib/mysql
     labels:
       traefik.enable: false
-  app:
+  php:
     build:
-      context: ./containers/php
+      context: ./.docker/php
       args:
-        PS_VERSION: ${PS_VERSION}
-        PS_DOMAIN: ${PS_DOMAIN}
-        DB_SERVER: ${DB_SERVER:-db}
-        DB_PORT: ${DB_PORT:-3306}
+        PHP_PM_MAX_CHILDREN: ${PHP_PM_MAX_CHILDREN}
+        PHP_MEMORY_LIMIT: -1
+        PHP_DATE_TIMEZONE: ${PHP_DATE_TIMEZONE}
+        PHP_SESSION_AUTO_START: ${PHP_SESSION_AUTO_START}
+        PHP_SHORT_OPEN_TAG: ${PHP_SHORT_OPEN_TAG}
+        PHP_DISPLAY_ERRORS: ${PHP_DISPLAY_ERRORS}
+        PHP_MAGIC_QUOTES_GPC: ${PHP_MAGIC_QUOTES_GPC}
+        PHP_MAX_EXECUTION_TIME: ${PHP_MAX_EXECUTION_TIME}
+        PHP_MAX_INPUT_TIME: ${PHP_MAX_INPUT_TIME}
+        PHP_UPLOAD_MAX_FILESIZE: ${PHP_UPLOAD_MAX_FILESIZE}
+        PHP_POST_MAX_SIZE: ${PHP_POST_MAX_SIZE}
+        PHP_MAX_INPUT_VARS: ${PHP_MAX_INPUT_VARS}
+        PHP_ALLOW_URL_FOPEN: ${PHP_ALLOW_URL_FOPEN}
+        PHP_OPCACHE_ENABLE: ${PHP_OPCACHE_ENABLE}
+        PHP_OPCACHE_ENABLE_CLI: ${PHP_OPCACHE_ENABLE_CLI}
+        PHP_OPCACHE_MEMORY_CONSUMPTION: ${PHP_OPCACHE_MEMORY_CONSUMPTION}
+        PHP_OPCACHE_INTERNED_STRINGS_BUFFER: ${PHP_OPCACHE_INTERNED_STRINGS_BUFFER}
+        PHP_OPCACHE_MAX_ACCELERATED_FILES: ${PHP_OPCACHE_MAX_ACCELERATED_FILES}
+        PHP_OPCACHE_MAX_WASTED_PERCENTAGE: ${PHP_OPCACHE_MAX_WASTED_PERCENTAGE}
+        PHP_OPCACHE_REVALIDATE_FREQ: ${PHP_OPCACHE_REVALIDATE_FREQ}
+        PHP_OPCACHE_FAST_SHUTDOWN: ${PHP_OPCACHE_FAST_SHUTDOWN}
+        PHP_OPCACHE_ENABLE_FILE_OVERRIDE: ${PHP_OPCACHE_ENABLE_FILE_OVERRIDE}
+        PHP_OPCACHE_MAX_FILE_SIZE: ${PHP_OPCACHE_MAX_FILE_SIZE}
+        PHP_OPCACHE_VALIDATE_TIMESTAMPS: ${PHP_OPCACHE_VALIDATE_TIMESTAMPS}
+        PHP_OPCACHE_REVALIDATE_PATH: ${PHP_OPCACHE_REVALIDATE_PATH}
+        DB_SERVER: ${DB_SERVER}
+        DB_PORT: ${DB_PORT}
         DB_NAME: ${DB_NAME}
         DB_USER: ${DB_USER}
         DB_PASSWD: ${DB_PASSWD}
         DB_PREFIX: ${DB_PREFIX}
         ADMIN_MAIL: ${ADMIN_MAIL}
         ADMIN_PASSWD: ${ADMIN_PASSWD}
+        PS_VERSION: 8.0.1
+        PS_DOMAIN: ${PS_DOMAIN}
+        PS_HANDLE_DYNAMIC_DOMAIN: ${PS_HANDLE_DYNAMIC_DOMAIN}
         PS_LANGUAGE: ${PS_LANGUAGE}
         PS_COUNTRY: ${PS_COUNTRY}
         PS_ENABLE_SSL: ${PS_ENABLE_SSL}
         PS_SHOP_NAME: ${PS_SHOP_NAME}
+        PS_SHOP_ACTIVITY: ${PS_SHOP_ACTIVITY}
         PS_TIMEZONE: ${PS_TIMEZONE}
-        PS_FOLDER_ADMIN: ${PS_FOLDER_ADMIN:-admin}
-        PS_FOLDER_INSTALL: ${PS_FOLDER_INSTALL:-install}
-        PS_HANDLE_DYNAMIC_DOMAIN: ${PS_HANDLE_DYNAMIC_DOMAIN:-0}
-        PS_BASE_URI: /
+        PS_FOLDER_ADMIN: ${PS_FOLDER_ADMIN}
+        PS_FOLDER_INSTALL: ${PS_FOLDER_INSTALL}
     labels:
-      traefik.enable: true
-      traefik.http.routers.app.rule: Host(`${PS_DOMAIN}`)
-      traefik.http.routers.app.entrypoints: web, websecure
-      traefik.http.routers.app.tls: true
-      traefik.http.routers.app.tls.certresolver: ${TRAEFIK_CERT_RESOLVER:-production}
-    mem_limit: 256m
-    mem_reservation: 128m
-    memswap_limit: 512m
-    cpus: 0.5
+      traefik.enable: false
+    deploy:
+      resources:
+        limits:
+          cpus: ${PHP_CPUS_LIMIT}
+          memory: ${PHP_MEMORY_LIMIT}
+        reservations:
+          cpus: ${PHP_CPUS_RESERVATION}
+          memory: ${PHP_MEMORY_RESERVATION}
     restart: on-failure:15
-    depends_on:
-      db:
-        condition: service_healthy
     networks:
-      - front-tier
-      - back-tier
+      - private_net
     volumes:
-      - 'app:/var/www/html'
-    expose:
-      - '9000'
+      - 'public_html:/var/www/html'
     healthcheck:
       interval: 10s
       timeout: 3s
       retries: 3
       start_period: 30s
-  proxy:
+  nginx:
     build:
-      context: ./containers/traefik
+      context: ./.docker/nginx
       args:
+        PHP_CONTAINER_NAME: php
+        VIRTUAL_HOST: ${PS_DOMAIN}
+        VIRTUAL_MAX_UPLOAD: ${PHP_UPLOAD_MAX_FILESIZE}
+        PS_FOLDER_ADMIN: ${PS_FOLDER_ADMIN}
+        PS_LANGUAGE: ${PS_LANGUAGE}
+        PS_DEFAULT_LANGUAGE: en
+    labels:
+      traefik.enable: true
+      traefik.http.routers.nginx.rule: Host(`${PS_DOMAIN}`) || Host(`www.${PS_DOMAIN}`)
+      traefik.http.routers.nginx.entrypoints: ${PROXY_NGINX_ENTRYPOINTS}
+      traefik.http.routers.nginx.tls: true
+      traefik.http.routers.nginx.tls.certresolver: ${PROXY_RESOLVER}
+    restart: always
+    depends_on:
+      php:
+        condition: service_healthy
+    networks:
+      - proxy_net
+      - private_net
+    volumes:
+      - public_html:/var/www/html:ro
+  traefik:
+    build:
+      context: ./.docker/traefik
+      args:
+        PROXY_API_DASHBOARD: ${PROXY_API_DASHBOARD}
+        PROXY_API_INSECURE: ${PROXY_API_INSECURE}
+        PROXY_LOG_LEVEL: ${PROXY_LOG_LEVEL}
         PROXY_RESOLVER_EMAIL: ${PROXY_RESOLVER_EMAIL}
+        PS_DOMAIN: ${PS_DOMAIN}
+        PS_ENABLE_SSL: ${PS_ENABLE_SSL}
+        PROXY_ADD_SELF_SIGNED_CERTIFICATES: ${PROXY_ADD_SELF_SIGNED_CERTIFICATES}
     restart: always
     ports:
       - 80:80
       - 443:443
     profiles:
-      - proxy
-    depends_on:
-      app:
-        condition: service_healthy
+      - reverse-proxy
     networks:
-      - front-tier
-      - back-tier
+      - proxy_net
     command: --providers.docker
     volumes:
-      - proxy:/etc/traefik
+      - traefik:/etc/traefik
+      - logs-traefik:/var/log/traefik
       - /var/run/docker.sock:/var/run/docker.sock:ro
 networks:
-  front-tier:
+  private_net:
     driver: bridge
-  back-tier:
+  proxy_net:
     driver: bridge
 volumes:
-  db:
-  app:
-  proxy:
+  mysql:
+  public_html:
+  traefik:
+  logs-traefik:

@@ -87,7 +87,7 @@ if [ ! -f ./config/settings.inc.php ] && [ ! -f ./install.lock ]; then
             --db_password=$DB_PASSWD --prefix="$DB_PREFIX" --firstname=$ADMIN_FIRSTNAME --lastname=$ADMIN_LASTNAME \
             --password=$ADMIN_PASSWD --email="$ADMIN_MAIL" --language=$PS_LANGUAGE --country=$PS_COUNTRY \
             --all_languages=$PS_ALL_LANGUAGES --newsletter=0 --send_email=0 --ssl=$PS_ENABLE_SSL --name="$PS_SHOP_NAME" \
-            --timezone=$PS_TIMEZONE --base_uri="$PS_BASE_URI"
+            --timezone=$PS_TIMEZONE --activity="$PS_SHOP_ACTIVITY"
 
         if [ $? -ne 0 ]; then
             echo 'warning: PrestaShop installation failed.'

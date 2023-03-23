@@ -19,7 +19,7 @@
 #
 # Exit status codes:
 # 2,9,111 - Couldn't connect to PHP fpm, is it running?
-# 8 - Couldn't reach PHP fpm status page, have you configured it with `pm.status_path = /status`?
+# 8 - Couldn't reach PHP fpm status page, have you configured it with `pm.status_path = /healthcheck`?
 # 1 - A healthcheck condition has failed
 # 3 - Invalid option given
 # 4 - One or more required softwares are missing
@@ -130,7 +130,7 @@ eval set -- "$GETOPT"
 
 # FastCGI variables
 FCGI_CONNECT_DEFAULT="localhost:9000"
-FCGI_STATUS_PATH_DEFAULT="/status"
+FCGI_STATUS_PATH_DEFAULT="/healthcheck"
 
 export REQUEST_METHOD="GET"
 export SCRIPT_NAME="${FCGI_STATUS_PATH:-$FCGI_STATUS_PATH_DEFAULT}"

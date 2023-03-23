@@ -1,0 +1,56 @@
+global:
+  checkNewVersion: true
+  sendAnonymousUsage: false # true by default
+
+# (Optional) Log information
+# ---
+log:
+  level: __PROXY_LOG_LEVEL__
+  format: common # common, json, logfmt
+  filePath: /var/log/traefik/traefik.log
+
+# (Optional) Accesslog
+# ---
+# accessLog:
+#   format: common # common, json, logfmt
+#   filePath: /var/log/traefik/access.log
+
+# (Optional) Enable API and Dashboard
+# ---
+api:
+  dashboard: __PROXY_API_DASHBOARD__
+  insecure: __PROXY_API_INSECURE__
+
+# Entry Points configuration
+# ---
+__ENTRY_POINTS__
+
+# Configure your CertificateResolver here...
+# ---
+certificatesResolvers:
+  staging:
+    acme:
+      email: __PROXY_RESOLVER_EMAIL__
+      storage: /etc/traefik/certs/acme.json
+      caServer: 'https://acme-staging-v02.api.letsencrypt.org/directory'
+      httpChallenge:
+        entryPoint: web
+  production:
+    acme:
+      email: __PROXY_RESOLVER_EMAIL__
+      storage: /etc/traefik/certs/acme.json
+      caServer: 'https://acme-v02.api.letsencrypt.org/directory'
+      httpChallenge:
+        entryPoint: web
+  none: {}
+
+# (Optional) Overwrite Default Certificates
+__TLS__
+
+providers:
+  docker:
+    exposedByDefault: false # Default is true
+  file:
+    # watch for dynamic configuration changes
+    directory: /etc/traefik
+    watch: true

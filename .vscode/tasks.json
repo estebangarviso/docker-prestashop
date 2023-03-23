@@ -1,0 +1,17 @@
+"docker.commands.composeUp": [
+    {
+        "label": "dev-match",
+        "template": "docker-compose -f docker-compose.yml -f docker-compose.debug.yml -f docker-compose.dev.yml up -d --build",
+        "match": "dev"
+    },
+    {
+        "label": "test-match",
+        "template": "docker-compose -f docker-compose.yml -f docker-compose.debug.yml -f docker-compose.test.yml up -d --build",
+        "match": "test"
+    },
+    {
+        "label": "prod-match",
+        "template": "docker-compose -f docker-compose.yml -f docker-compose.release.yml -f docker-compose.prod.yml up -d --build",
+        "match": "prod"
+    }
+]
