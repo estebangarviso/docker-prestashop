@@ -5,10 +5,6 @@ services:
     image: estebangarviso/ps-ecommerce:mysql
     build:
       context: ./.docker/mysql
-      tags:
-        - estebangarviso/ps-ecommerce:mysql-8.0.32
-        - estebangarviso/ps-ecommerce:mysql-8.0
-        - estebangarviso/ps-ecommerce:mysql-8
     tty: true
     restart: always
     ports:
@@ -30,10 +26,6 @@ services:
     image: estebangarviso/ps-ecommerce:php-fpm
     build:
       context: ./.docker/php
-      tags:
-        - 'estebangarviso/ps-ecommerce:php-fpm-8.1.0'
-        - 'estebangarviso/ps-ecommerce:php-fpm-8.1'
-        - 'estebangarviso/ps-ecommerce:php-fpm-8'
       args:
         PHP_PM_MAX_CHILDREN: ${PHP_PM_MAX_CHILDREN}
         PHP_MEMORY_LIMIT: -1
@@ -103,10 +95,6 @@ services:
     image: estebangarviso/ps-ecommerce:nginx
     build:
       context: ./.docker/nginx
-      tags:
-        - 'estebangarviso/ps-ecommerce:nginx-8.1.0'
-        - 'estebangarviso/ps-ecommerce:nginx-8.1'
-        - 'estebangarviso/ps-ecommerce:nginx-8'
       args:
         PHP_CONTAINER_NAME: php
         VIRTUAL_HOST: ${PS_DOMAIN}
@@ -138,8 +126,6 @@ services:
     image: estebangarviso/ps-ecommerce:traefik-2.9
     build:
       context: ./.docker/traefik
-      tags:
-        - 'estebangarviso/ps-ecommerce:traefik-2'
       args:
         PROXY_API_DASHBOARD: ${PROXY_API_DASHBOARD}
         PROXY_API_INSECURE: ${PROXY_API_INSECURE}

@@ -9,8 +9,21 @@
 
 You can use tags for this. For example:
 
+```bash
+# Create networks
+$ docker network create frontend --driver bridge && docker network create backend --driver bridge
+# Create database container
+$ docker run -ti --name my-database-name -e MYSQL_ROOT_PASSWORD=your-password -e MYSQL_DATABASE=your-database -e MYSQL_USER=your-user -e MYSQL_PASSWORD=your-password -d --network backend estebangarviso/ps-ecommerce:mysql
+# Create php-fpm container
+$ docker run -ti --name my-php-fpm-name -e PS_DEV_MODE=false -d estebangarviso/ps-ecommerce:php-fpm --network frontend
+# Create nginx container
+$ docker run -ti --name my-nginx-name -e NGINX_PROXY_MIDDLEWARES=redirect-non-www -d estebangarviso/ps-ecommerce:nginx --network frontend
 ```
-$ docker run -ti --name my-docker-name -e PS_DEV_MODE=false -p 8080:80 -d estebangarviso/ps-ecommerce:8.0
+
+But if you want to use the docker-compose.yml file, you can use the following command:
+
+```bash
+$ docker-compose up -d
 ```
 
 PS E-commerce is a project to deploy a high performance [Prestashop on Docker](https://hub.docker.com/r/prestashop/prestashop/).
