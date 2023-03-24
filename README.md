@@ -7,10 +7,6 @@
 [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/estebangarviso/ps-ecommerce/latest)](https://hub.docker.com/r/estebangarviso/ps-ecommerce/)
 [![Docker Image Version (tag latest semver)](https://img.shields.io/docker/v/estebangarviso/ps-ecommerce/latest)](https://hub.docker.com/r/estebangarviso/ps-ecommerce/)
 
-## Supported tags
-
-- `8`, `latest`, `8-nginx`
-
 You can use tags for this. For example:
 
 ```
@@ -100,9 +96,9 @@ If you want to customize the container execution, here are many available option
 - **PHP_REALPATH_CACHE_SIZE**: The size of the realpath cache to be used by PHP. Use 16K in development _(default value: 4096K)_
 - **PHP_REALPATH_CACHE_TTL**: The TTL for cache entries of realpaths. Use 120 in development _(default value: 600)_
 
-### MySQL
+### MySQL (profile: database)
 
-- **DB_SERVER**: If set, the external MySQL database will be used instead of the volatile internal one _(default value: localhost)_
+- **DB_SERVER**: If set, the external MySQL database will be used instead of the volatile internal one _(default value: mysql)_
 - **DB_USER**: Override default MySQL user _(default value: db_user)_
 - **DB_PASSWD**: Override default MySQL password _(default value: admin)_
 - **DB_PREFIX**: Override default tables prefix _(default value: ps\_)_
@@ -114,7 +110,7 @@ If you want to customize the container execution, here are many available option
 - **ADMIN_PASSWD**: Override default admin password _(default value: demodemo)_
 - **ADMIN_FIRSTNAME**: Override default admin firstname _(default value: John)_
 - **ADMIN_LASTNAME**: Override default admin lastname _(default value: Doe)_
-- **PS_DOMAIN**: When installing automatically your shop, you can tell the shop how it will be reached. For advanced users only _(default: ps.local)_
+- **PS_DOMAIN**: When installing automatically your shop, you can tell the shop how it will be reached. For advanced users only _(default: localhost)_
 - **PS_DEV_MODE**: Enable or disable development mode _(default value: 0)_
 - **PS_ENABLE_SSL**: Enable SSL at PrestaShop installation. _(default value: 0)_
 - **PS_LANGUAGE**: Change the default language installed with PrestaShop _(default value: es)_
@@ -149,7 +145,7 @@ If your IP / port (or domain) change between two executions of your container, y
 
 - **PS_HANDLE_DYNAMIC_DOMAIN**: Add specific configuration to handle dynamic domain _(default value: 0)_
 
-### Traefik
+### Traefik (Use only with registered domain. profile: reverse-proxy)
 
 - **PROXY_RESOLVER_EMAIL**: Email address used for registration with the ACME server. This is required for Traefik to obtain certificates from Let's Encrypt. _(default: info@demo.com)_
 - **PROXY_API_DASHBOARD**: Enable the Traefik API dashboard. This is useful for debugging. _(default: 0)_
@@ -159,15 +155,27 @@ If your IP / port (or domain) change between two executions of your container, y
   - staging: Use the Let's Encrypt staging server. This is useful for testing. [See more](https://letsencrypt.org/docs/staging-environment/)
   - production: Use the Let's Encrypt production server. [See more](https://letsencrypt.org/)
   - none: Disable Let's Encrypt. This is useful for testing.
-- **PROXY_NGINX_ENTRYPOINTS**: Set the Traefik entrypoints for Nginx. In order to add both HTTP and HTTPS, use `web,websecure`. _(default: web)_ [See more](https://doc.traefik.io/traefik/routing/entrypoints/)
+- **PROXY_NGINX_ENTRYPOINTS**: Set the Traefik entrypoints for Nginx. In order to add both HTTP and HTTPS, use `web,websecure`. Remember to activate `PS_ENABLE_SSL` with value `1`, then it'll redirect http to https protocol. _(default: web)_ [See more](https://doc.traefik.io/traefik/routing/entrypoints/)
   - web: http port 80
   - websecure: https port 443
-- **PROXY_ADD_SELF_SIGNED_CERTIFICATES**: Add self-signed certificates to the Traefik container. This is useful for testing. _(default: 0)_
+- **PROXY_INTRANET_IP_LIST**: Set the intranet IP list. _(default: 192.168.0.0/16,172.0.0.0/8)_
+- **PROXY_NETWORK_NAME**: Set the Traefik network name. _(default: frontend)_
+- **PROXY_NETWORK_EXTERNAL**: Set the Traefik network as external. _(default: false)_
+- **PROXY_NETWORK_DRIVER**: Set the Traefik network driver. _(default: bridge)_
+
+### Nginx
+
+- **NGINX_PROXY_MIDDLEWARES**: Set the Nginx proxy middlewares. _(default: redirect-non-www-to-www@file)_
+  - redirect-non-www@file: Redirect non-www to www.
+  - redirect-www@file: Redirect www to non-www.
+  - default-security-headers: Set default security headers.
+  - intranet-whitelist: Set intranet whitelist.
+  - default: Set default security headers and intranet whitelist.
 
 ### Docker Compose
 
 - **COMPOSE_PROJECT_NAME**: Set the Docker Compose project name. _(default: ps-ecommerce)_
-- **COMPOSE_PROFILES**: Set the Docker Compose profiles. _(default: database,reverse-proxy)_ [See more](https://docs.docker.com/compose/profiles/)
+- **COMPOSE_PROFILES**: Set the Docker Compose profiles. _(default: database)_ [See more](https://docs.docker.com/compose/profiles/)
 
 ## Finding your bottleneck(s)
 
@@ -182,5 +190,3 @@ sudo grep max_children /var/log/php8.1-fpm-sp.log.1 /var/log/php8.1-fpm-sp.log |
 ## License
 
 [OSL - Open Software Licence 3.0](https://opensource.org/licenses/OSL-3.0)
-
-## Contributing

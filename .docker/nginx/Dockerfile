@@ -4,11 +4,11 @@ LABEL maintainer="Esteban Garviso <e.garvisovenegas@gmail.com>"
 
 # Global variables
 ARG PHP_CONTAINER_NAME \
-    VIRTUAL_HOST \
-    VIRTUAL_MAX_UPLOAD \
-    PS_FOLDER_ADMIN \
-    PS_LANGUAGE \
-    PS_DEFAULT_LANGUAGE
+  VIRTUAL_HOST \
+  VIRTUAL_MAX_UPLOAD \
+  PS_FOLDER_ADMIN \
+  PS_LANGUAGE \
+  PS_DEFAULT_LANGUAGE
 
 # Copy custom configuration
 COPY config/nginx.conf /tmp/nginx.conf

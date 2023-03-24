@@ -1,29 +1,25 @@
 global:
   checkNewVersion: true
   sendAnonymousUsage: false # true by default
-
+defaultEntryPoints: [web]
 # (Optional) Log information
 # ---
 log:
   level: __PROXY_LOG_LEVEL__
-  format: common # common, json, logfmt
+  format: json # common, json, logfmt
   filePath: /var/log/traefik/traefik.log
 
 # (Optional) Accesslog
 # ---
-# accessLog:
-#   format: common # common, json, logfmt
-#   filePath: /var/log/traefik/access.log
+accessLog:
+  format: json # common, json, logfmt
+  filePath: /var/log/traefik/access.log
 
 # (Optional) Enable API and Dashboard
 # ---
 api:
   dashboard: __PROXY_API_DASHBOARD__
   insecure: __PROXY_API_INSECURE__
-
-# Entry Points configuration
-# ---
-__ENTRY_POINTS__
 
 # Configure your CertificateResolver here...
 # ---
@@ -42,15 +38,62 @@ certificatesResolvers:
       caServer: 'https://acme-v02.api.letsencrypt.org/directory'
       httpChallenge:
         entryPoint: web
-  none: {}
-
-# (Optional) Overwrite Default Certificates
-__TLS__
 
 providers:
   docker:
+    watch: false # Default is true
+    endpoint: 'unix:///var/run/docker.sock'
+    network: frontend
     exposedByDefault: false # Default is true
   file:
     # watch for dynamic configuration changes
-    directory: /etc/traefik
-    watch: true
+    directory: /etc/traefik/dynamic
+    watch: false
+
+# See https://doc.traefik.io/traefik/https/tls/
+tls:
+  options:
+    # To use with the label "traefik.http.routers.myrouter.tls.options=modern@file"
+    modern:
+      minVersion: 'VersionTLS13' # Minimum TLS Version
+      sniStrict: true # Strict SNI Checking
+
+    # To use with the label "traefik.http.routers.myrouter.tls.options=intermediate@file"
+    intermediate:
+      cipherSuites:
+        - 'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256'
+        - 'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
+        - 'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384'
+        - 'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
+        - 'TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305'
+        - 'TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305'
+      minVersion: 'VersionTLS12' # Minimum TLS Version
+      sniStrict: true # Strict SNI Checking
+
+    # To use with the label "traefik.http.routers.myrouter.tls.options=old@file"
+    old:
+      cipherSuites:
+        - 'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256'
+        - 'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
+        - 'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384'
+        - 'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
+        - 'TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305'
+        - 'TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305'
+        - 'TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256'
+        - 'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256'
+        - 'TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA'
+        - 'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA'
+        - 'TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA'
+        - 'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA'
+        - 'TLS_RSA_WITH_AES_128_GCM_SHA256'
+        - 'TLS_RSA_WITH_AES_256_GCM_SHA384'
+        - 'TLS_RSA_WITH_AES_128_CBC_SHA256'
+        - 'TLS_RSA_WITH_AES_128_CBC_SHA'
+        - 'TLS_RSA_WITH_AES_256_CBC_SHA'
+        - 'TLS_RSA_WITH_3DES_EDE_CBC_SHA'
+      minVersion: 'TLSv1' # Minimum TLS Version
+      sniStrict: true # Strict SNI Checking
+
+# Generated 2021-08-12, Mozilla Guideline v5.6, Traefik 2.4.8
+#   https://ssl-config.mozilla.org/#server=traefik&version=2.4.8&config=old&guideline=5.6
+#   https://ssl-config.mozilla.org/#server=traefik&version=2.4.8&config=intermediate&guideline=5.6

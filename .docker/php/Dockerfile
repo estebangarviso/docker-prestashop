@@ -122,6 +122,7 @@ COPY config/ps-extractor.sh config/docker_run.sh config/docker_nightly_run.sh /t
 # Prepare post-install script
 RUN mkdir -p /tmp/post-install-scripts
 COPY config/post-install-scripts/*.sh /tmp/post-install-scripts/
+RUN chmod +x /tmp/post-install-scripts/*.sh
 
 # Handle dynamic domain
 COPY config/docker_updt_ps_domains.php /tmp/

@@ -2,8 +2,13 @@
 version: '3.9'
 services:
   mysql:
+    image: estebangarviso/ps-ecommerce:mysql
     build:
       context: ./.docker/mysql
+      tags:
+        - estebangarviso/ps-ecommerce:mysql-8.0.32
+        - estebangarviso/ps-ecommerce:mysql-8.0
+        - estebangarviso/ps-ecommerce:mysql-8
     tty: true
     restart: always
     ports:
@@ -11,7 +16,7 @@ services:
     profiles:
       - database
     networks:
-      - private_net
+      - backend
     environment:
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USER}
@@ -22,8 +27,13 @@ services:
     labels:
       traefik.enable: false
   php:
+    image: estebangarviso/ps-ecommerce:php-fpm
     build:
       context: ./.docker/php
+      tags:
+        - 'estebangarviso/ps-ecommerce:php-fpm-8.1.0'
+        - 'estebangarviso/ps-ecommerce:php-fpm-8.1'
+        - 'estebangarviso/ps-ecommerce:php-fpm-8'
       args:
         PHP_PM_MAX_CHILDREN: ${PHP_PM_MAX_CHILDREN}
         PHP_MEMORY_LIMIT: -1
@@ -81,7 +91,7 @@ services:
           memory: ${PHP_MEMORY_RESERVATION}
     restart: on-failure:15
     networks:
-      - private_net
+      - backend
     volumes:
       - 'public_html:/var/www/html'
     healthcheck:
@@ -90,8 +100,13 @@ services:
       retries: 3
       start_period: 30s
   nginx:
+    image: estebangarviso/ps-ecommerce:nginx
     build:
       context: ./.docker/nginx
+      tags:
+        - 'estebangarviso/ps-ecommerce:nginx-8.1.0'
+        - 'estebangarviso/ps-ecommerce:nginx-8.1'
+        - 'estebangarviso/ps-ecommerce:nginx-8'
       args:
         PHP_CONTAINER_NAME: php
         VIRTUAL_HOST: ${PS_DOMAIN}
@@ -99,24 +114,32 @@ services:
         PS_FOLDER_ADMIN: ${PS_FOLDER_ADMIN}
         PS_LANGUAGE: ${PS_LANGUAGE}
         PS_DEFAULT_LANGUAGE: en
+    ports:
+      - 80:80 # for local development only
+      - 443:443 # for local development only
     labels:
       traefik.enable: true
+      traefik.http.services.nginx.loadbalancer.server.port: 80
+      traefik.http.routers.nginx.middlewares: ${NGINX_PROXY_MIDDLEWARES}
       traefik.http.routers.nginx.rule: Host(`${PS_DOMAIN}`) || Host(`www.${PS_DOMAIN}`)
       traefik.http.routers.nginx.entrypoints: ${PROXY_NGINX_ENTRYPOINTS}
       traefik.http.routers.nginx.tls: true
       traefik.http.routers.nginx.tls.certresolver: ${PROXY_RESOLVER}
-    restart: always
+    restart: unless-stopped
     depends_on:
       php:
         condition: service_healthy
     networks:
-      - proxy_net
-      - private_net
+      - frontend
+      - backend
     volumes:
       - public_html:/var/www/html:ro
   traefik:
+    image: estebangarviso/ps-ecommerce:traefik-2.9
     build:
       context: ./.docker/traefik
+      tags:
+        - 'estebangarviso/ps-ecommerce:traefik-2'
       args:
         PROXY_API_DASHBOARD: ${PROXY_API_DASHBOARD}
         PROXY_API_INSECURE: ${PROXY_API_INSECURE}
@@ -124,25 +147,29 @@ services:
         PROXY_RESOLVER_EMAIL: ${PROXY_RESOLVER_EMAIL}
         PS_DOMAIN: ${PS_DOMAIN}
         PS_ENABLE_SSL: ${PS_ENABLE_SSL}
-        PROXY_ADD_SELF_SIGNED_CERTIFICATES: ${PROXY_ADD_SELF_SIGNED_CERTIFICATES}
+        PROXY_INTRANET_IP_LIST: ${PROXY_INTRANET_IP_LIST}
     restart: always
     ports:
-      - 80:80
-      - 443:443
+      # - 80:80 # Comment nginx ports
+      # - 443:443 # Comment nginx ports
+      - 8080:8080
     profiles:
       - reverse-proxy
     networks:
-      - proxy_net
+      - frontend
     command: --providers.docker
     volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:roß
       - traefik:/etc/traefik
       - logs-traefik:/var/log/traefik
-      - /var/run/docker.sock:/var/run/docker.sock:ro
 networks:
-  private_net:
+  backend:
     driver: bridge
-  proxy_net:
-    driver: bridge
+  frontend:
+    name: ${PROXY_NETWORK_NAME}
+    external: ${PROXY_NETWORK_EXTERNAL}
+    driver: ${PROXY_NETWORK_DRIVER}
 volumes:
   mysql:
   public_html:

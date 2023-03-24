@@ -1,0 +1,20 @@
+http:
+  middlewares:
+    default:
+      chain:
+        middlewares:
+          - default-security-headers
+          - intranet-whitelist
+
+    default-security-headers:
+      headers:
+        browserXssFilter: true # X-XSS-Protection=1; mode=block
+        contentTypeNosniff: true # X-Content-Type-Options=nosniff
+        forceSTSHeader: true # Add the Strict-Transport-Security header even when the connection is HTTP
+        frameDeny: true # X-Frame-Options=deny
+        referrerPolicy: 'strict-origin-when-cross-origin'
+        sslRedirect: true # Allow only https requests
+        stsIncludeSubdomains: true # Add includeSubdomains to the Strict-Transport-Security header
+        stsPreload: true # Add preload flag appended to the Strict-Transport-Security header
+        stsSeconds: 63072000 # Set the max-age of the Strict-Transport-Security header (63072000 = 2 years)
+
